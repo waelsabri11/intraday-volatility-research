@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import argparse
+import os
+
+os.environ.setdefault("OMP_NUM_THREADS", "4")  # keep laptop usage reasonable (set before sklearn/torch import)
 
 from . import data, report
 from .config import SYMBOLS
@@ -27,12 +30,11 @@ def main(argv=None):
         for sym in SYMBOLS:
             print(forecast.run_hourly(sym)["table"].round(4).to_string())
     if s in ("sizing", "all"):
-        tabs = {sym: report.run_sizing(sym) for sym in SYMBOLS}
-        report.figure_cost_sensitivity(tabs)
+        for sym in SYMBOLS:
+            report.run_sizing(sym)
     if s in ("figures", "all"):
-        report.figure_forecasts()
-        report.figure_loss_ratios()
-        report.figure_seasonality()
+        from . import figures
+        figures.make_all()
 
 
 if __name__ == "__main__":

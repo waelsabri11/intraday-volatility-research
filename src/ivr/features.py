@@ -73,7 +73,7 @@ def _period_core(r5: pd.DataFrame, df1m: pd.DataFrame, freq: str, ppd: int) -> p
         n1=("close", "size"),
     )
     out = out.join(agg, how="inner")
-    out["log_qv"] = np.log(out["qv"])
+    out["log_qv"] = np.log(out["qv"].clip(lower=1.0))
     out["log_trades"] = np.log(out["trades"].clip(lower=1))
     out["imb"] = (2 * out["tb"] - out["vol"]) / out["vol"]        # taker-buy imbalance in [-1, 1]
     out["abs_imb"] = out["imb"].abs()

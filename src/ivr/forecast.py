@@ -99,4 +99,5 @@ def run_hourly(symbol: str) -> dict:
     fc = fc[fc["rv_target"] > 0]
     tab = loss_table(fc["rv_target"], {m: fc[m] for m in specs})
     tab.to_csv(RES / f"hourly_losses_{symbol}.csv")
+    fc.to_csv(RES / f"hourly_forecasts_{symbol}.csv")
     return {"table": tab, "fc": fc}
