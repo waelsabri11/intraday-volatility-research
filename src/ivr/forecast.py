@@ -31,6 +31,10 @@ def run_daily(symbol: str) -> dict:
     ret_pct = d["ret"].fillna(0.0).values * 100
 
     Xh, Xg = d[F.DAILY_HAR].values, d[F.DAILY_GBM].values
+    dow = pd.get_dummies(d["dow_next"], dtype=float).iloc[:, 1:].values
+    Xd = np.c_[Xh, dow]                                   # HAR + weekday-of-target dummies
+    gbm_nodow = [c for c in F.DAILY_GBM if c != "dow_next"]
+    Xx = np.c_[d[gbm_nodow].values, dow]                  # linear model on all GBM features
     out, folds = {}, None
 
     def sk(fn, X):
@@ -39,6 +43,8 @@ def run_daily(symbol: str) -> dict:
     specs = {
         "Naive": sk(M.naive_fit_predict, Xh),
         "HAR": sk(M.har_fit_predict, Xh),
+        "HAR-DoW": sk(M.har_fit_predict, Xd),
+        "HAR-X (linear, all feats)": sk(M.har_fit_predict, Xx),
         "GARCH": lambda tr, te: M.garch_forecast(ret_pct, tr.max() + 1, False)[te] / 1e4,
         "GJR-GARCH": lambda tr, te: M.garch_forecast(ret_pct, tr.max() + 1, True)[te] / 1e4,
         "GBM": sk(M.gbm_fit_predict, Xg),
