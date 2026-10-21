@@ -18,7 +18,7 @@ is copied from `reports/results/*.csv`.
   ETHUSDT, Jan 2019 - Sep 2026. No login, no API key. Raw zips are checked against Binance's published
   SHA-256 file, parsed as CSV in memory (never extracted/executed) and kept in `data/raw/` (git-ignored).
 * 4.07 M one-minute bars per symbol; 0.10 % of minutes are missing (exchange downtime). Days with >10 % of
-  minutes missing are dropped (10 days for BTC, all in 2019-2021, i.e. before the out-of-sample period).
+  minutes missing are dropped (10 days for BTC between 2019 and Aug 2021; three of them fall inside the out-of-sample window and are simply excluded from evaluation).
 * Processed 1-minute parquet (DuckDB) and daily features in `data/processed/` (git-ignored, rebuilt by the CLI).
 * A "day" is a UTC calendar day (crypto trades 24/7), 288 five-minute bars.
 
@@ -192,7 +192,7 @@ Sensitivity 0 / 5 / 10 / 20 / 50 bps is in `reports/results/sizing_*.csv`. Same 
 **Reading it correctly**
 
 * **What works as risk control:** the realised volatility of the position is pulled from 55 % / 73 % (BTC / ETH
-  buy-and-hold) toward the 40 % target, the 30-day realised vol is 2-4x more stable, the worst day is cut (BTC -15.4 % -> -9.3 %)
+  buy-and-hold) toward the 40 % target, the dispersion of 30-day realised vol is ~2.7x lower, the worst day is cut (BTC -15.4 % -> -9.3 %)
   and max drawdown is shallower for ETH (-79 % -> -56 %) and modestly so for BTC.
 * **What does not:** Sharpe and return are **not** improved by the forecast-based rule in this sample (BTC Sharpe 0.50 vs 0.67
   buy-and-hold; a static weight with the same average exposure does as well on return/Sharpe, with higher vol). Cost drag at
@@ -242,4 +242,4 @@ make test         # pytest (leakage tests use synthetic data, no download needed
   and no significance tests on portfolio metrics. It is an illustration of risk control, nothing more.
 * Only two highly correlated assets in one regime-heavy period (2021-2026); weekday patterns and the HAR-X advantage were
   stronger in later years and may not persist.
-* Two earlier-hourly rows with zero traded volume were handled by clipping before the log (fixed before the final run).
+* Two hourly rows with zero traded volume are handled by clipping before the log (fixed, and the hourly results regenerated, before the numbers above).
