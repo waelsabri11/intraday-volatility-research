@@ -44,7 +44,10 @@ def _daily(sym):
 
 
 def _fc(sym, kind="daily"):
-    return pd.read_csv(RES / f"{kind}_forecasts_{sym}.csv", index_col=0, parse_dates=True)
+    fc = pd.read_csv(RES / f"{kind}_forecasts_{sym}.csv", index_col=0, parse_dates=True)
+    if "target_date" in fc:
+        fc["target_date"] = pd.to_datetime(fc["target_date"])
+    return fc
 
 
 def _close_daily(sym):
@@ -397,9 +400,10 @@ def fig14_equity_drawdown():
             ax[0, j].plot(eq, color=c, lw=1.1, label=n)
             ax[1, j].plot(eq / eq.cummax() - 1, color=c, lw=0.9)
         ax[0, j].set_yscale("log")
-        ax[0, j].set_title(f"{s[:3]}: growth of 1 USDT, net of 10 bps one-way costs\nILLUSTRATION of risk control, not a strategy; sample drift dominates returns")
+        ax[0, j].set_title(f"{s[:3]}: growth of 1 USDT, net of 10 bps one-way costs")
         ax[1, j].set_title("Drawdown"); ax[1, j].yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0, decimals=0))
     ax[0, 0].legend(fontsize=6.5)
+    fig.suptitle("ILLUSTRATION of risk control, not a strategy: returns are dominated by the sample's drift", fontsize=10, y=1.01)
     _save(fig, "14_equity_and_drawdown_illustration")
 
 

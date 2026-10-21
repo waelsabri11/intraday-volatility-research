@@ -5,3 +5,4 @@ __pycache__/
 data/raw/
 data/processed/
 *.egg-info/
+reports/results/hourly_forecasts_*.csv
